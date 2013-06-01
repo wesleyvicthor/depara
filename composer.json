@@ -1,0 +1,16 @@
+{
+    "name": "root/converter",
+    "description": "~",
+    "require": {
+        "respect/rest": "dev-develop",
+        "twig/twig": "v1.13.0",
+        "symfony/yaml": "2.4.*@dev"
+    },
+    "authors": [
+        {
+            "name": "Wesley Victhor Mendes",
+            "email": "w.v.mendes.s@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}

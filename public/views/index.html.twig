@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+	<title>Converter</title>
+	<meta charset="utf8" />
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<h2>Converter</h2>
+		<form>
+			{% for key, table in tables %}
+				<fieldset>
+					<legend>{{ key }}</legend>
+					{% for key, column in table %}
+						<div>
+							<input name="{{ key }}" placeholder="{{ column }}" type="text" />
+						</div>
+					{% endfor %}
+				</fieldset>
+			{% endfor %}
+		</form>
+	</div>
+</body>
+</html>
