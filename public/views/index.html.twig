@@ -1,25 +1,128 @@
 <!doctype html>
 <html>
 <head>
-	<title>Converter</title>
-	<meta charset="utf8" />
-	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <title>Converter</title>
+    <meta charset="utf8" />
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <style type="text/css">
+        label {
+            cursor: pointer;
+        }
+        .span9 {
+             border-top: solid 1px #ccc;
+             margin-top: 10px;
+             padding-top: 10px;
+        }
+    </style>
 </head>
 <body>
-	<div class="container">
-		<h2>Converter</h2>
-		<form>
-			{% for key, table in tables %}
-				<fieldset>
-					<legend>{{ key }}</legend>
-					{% for key, column in table %}
-						<div>
-							<input name="{{ key }}" placeholder="{{ column }}" type="text" />
-						</div>
-					{% endfor %}
-				</fieldset>
-			{% endfor %}
-		</form>
-	</div>
+    <div class="container">
+        {% block main %}
+            <h2>Converter</h2>
+            <div>
+                <form action="/{{ configName }}" method="post" enctype="multipart/form-data">
+                    <input type="file" name="mock-file" />
+                    <input type="submit" class="btn" value="Exibir" />
+                </form>
+                <form id="process-sql" action="/sql" method="post" enctype="multipart/form-data">
+                    <div class="span4">
+                            {% for key, table in tables %}
+                                <fieldset>
+                                    <legend>{{ key }}</legend>
+                                    {% for key, column in table %}
+                                        <div>
+                                            <label data-order="{{ loop.index - 1 }}" data-columnid="{{ key }}" class="label table-column">
+                                                {{ column }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </fieldset>
+                            {% endfor %}
+                    </div>
+                    <div class="span5">
+                        <fieldset>
+                            <legend>CSV</legend>
+                            {% for line in csvLines %}
+                                <div>
+                                    <label class="label csv-column">
+                                        {{ line }}
+                                    </label>
+                                    <input type="hidden" />
+                                </div>
+                            {% endfor %}
+                        </fieldset>
+                    </div>
+                    <div class="span9">
+                        <fieldset>
+                            <div>
+                                <label>Arquivo:</label>
+                                <input type="file" name="file" />
+                            </div>
+                            <div>
+                                <input class="btn" type="submit" value="Gerar SQL" />
+                            </div>
+                        </fieldset>
+                    </div>
+                </form>
+            </div>
+        {% endblock %}
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var colorsQtd = 2;
+            var colors = [];
+            var labels = [];
+            var columnId = null;
+            var dataOrder = null;
+
+            function generateColors() {
+                var qtd = 0;
+                var generatedColor = Math.floor(Math.random() * 16777215).toString(16);
+                while(qtd < colorsQtd) {
+                    colors.push(generatedColor);    
+                    qtd++
+                }
+            }
+
+            var tableColumn = function () {
+                generateColors();
+                $(this).css('border', 'solid 3px #' + colors.pop());
+                columnId = $(this).data('columnid');
+                dataOrder = $(this).data('order');
+                $('.table-column').off();
+            }
+
+            var csvColumn = function () {
+                var input = $(this).next('input');
+
+                if ($(this).is(labels.pop())) {
+                    columnId = input.attr('name');
+                    dataOrder = input.data('order');
+                    input.attr('name', null);
+                    colors.push($(this).data('color'));
+                    $(this).css('border', 'none');
+                    labels.pop();
+                    return;
+                }
+
+                if (columnId != null) {
+                    input.attr('name', columnId);
+                    input.data('order', dataOrder);
+                }
+
+                var borderColor = colors.pop();
+                $(this).data('color', borderColor);
+                $(this).css('border', 'solid 3px #' + borderColor);
+                columnId = null;
+                dataOrder = null;
+                $('.table-column').on('click', tableColumn);
+                labels.push($(this));
+            }
+
+            $('.table-column').on('click', tableColumn);
+            $('.csv-column').on('click', csvColumn);
+        });
+    </script>
 </body>
 </html>
